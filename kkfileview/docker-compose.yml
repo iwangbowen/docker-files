@@ -3,7 +3,7 @@ services:
   kkfileview:
     image: keking/kkfileview:latest
     container_name: kkfileview
-    restart: always
+    restart: unless-stopped
     ports:
       - 40011:40011
     environment:
