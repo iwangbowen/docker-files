@@ -4,6 +4,7 @@ services:
     image: keking/kkfileview:latest
     container_name: kkfileview
     restart: unless-stopped
+    TZ: Asia/Shanghai
     ports:
       - 40011:40011
     environment:
