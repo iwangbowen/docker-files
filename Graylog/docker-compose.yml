@@ -3,7 +3,7 @@ version: '3'
 services:
   # MongoDB: https://hub.docker.com/_/mongo/
   mongodb:
-    image: mongo:4
+    image: mongo:5.0.8
     restart: unless-stopped
     environment:
       - TZ=Asia/Shanghai
