@@ -30,6 +30,7 @@ services:
     networks:
       - graylog
   # Graylog: https://hub.docker.com/r/graylog/graylog/
+  # Graylog安装和配置路径/usr/share/graylog
   graylog:
     image: graylog/graylog:4.3.6
     restart: unless-stopped
