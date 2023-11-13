@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+  bytebase:
+    image: bytebase/bytebase:2.11.0
+    container_name: bytebase
+    restart: unless-stopped
+    ports:
+      - 5678:80
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - bytebase-data:/var/opt/bytebase
+
+volumes:
+  bytebase-data:
