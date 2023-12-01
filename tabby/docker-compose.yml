@@ -1,0 +1,13 @@
+version: '3.5'
+services:
+  tabby:
+    restart: unless-stopped
+    image: tabbyml/tabby:latest
+    command: serve --model TabbyML/StarCoder-1B
+    volumes:
+      - data:/data
+    ports:
+      - 8888:8080
+
+volumes:
+  data:
