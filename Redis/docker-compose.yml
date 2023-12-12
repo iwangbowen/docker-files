@@ -3,8 +3,9 @@ services:
   redis:
     image: redis:alpine
     container_name: redis
-    restart: always
-    TZ: Asia/Shanghai
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
     ports:
       - 6379:6379
     volumes:
