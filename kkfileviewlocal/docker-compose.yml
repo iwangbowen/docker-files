@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   kkfileview:
-    image: keking/kkfileview:latest
+    image: keking/kkfileview:4.3.0
     container_name: kkfileview
     restart: unless-stopped
     ports:
