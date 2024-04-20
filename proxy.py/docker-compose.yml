@@ -1,0 +1,8 @@
+version: '3'
+services:
+  proxy.py:
+    image: abhinavsingh/proxy.py:latest
+    command: ["--hostname", "0.0.0.0", "--port", "18090"]
+    ports:
+      - "18090:18090"
+    restart: unless-stopped
