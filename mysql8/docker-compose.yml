@@ -12,7 +12,6 @@ services:
     volumes:
       - data:/var/lib/mysql
     command:
-      --max_allowed_packet=200M
       --lower_case_table_names=1
 
 volumes:
