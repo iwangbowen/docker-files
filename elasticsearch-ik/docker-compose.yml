@@ -18,3 +18,7 @@ services:
       - ./data:/usr/share/elasticsearch/data
       - ./logs:/usr/share/elasticsearch/logs
       - ./ik-config:/usr/share/elasticsearch/plugins/ik/config
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
