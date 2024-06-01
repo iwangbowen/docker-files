@@ -1,0 +1,20 @@
+version: '3'
+services:
+  elasticsearch-ik:
+    image: wangbowen/elasticsearch-ik:8.5.2
+    container_name: elasticsearch-ik
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=elastic
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+      - xpack.security.enabled=false
+      - TX=Asia/Shanghai
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./data:/usr/share/elasticsearch/data
+      - ./logs:/usr/share/elasticsearch/logs
+      - ./ik-config:/usr/share/elasticsearch/plugins/ik/config
