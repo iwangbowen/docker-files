@@ -7,7 +7,7 @@
 	 <!--用户可以在这里配置自己的扩展停止词字典-->
 	<entry key="ext_stopwords"></entry>
 	<!--用户可以在这里配置远程扩展字典 -->
-	<entry key="remote_ext_dict">http://host.docker.internal:8080/search/dict/ik/WORD</entry>
+	<entry key="remote_ext_dict">http://host.docker.internal:8777/search/dict/ik/WORD</entry>
 	<!--用户可以在这里配置远程扩展停止词字典-->
-	<entry key="remote_ext_stopwords">http://host.docker.internal:8080/search/dict/ik/STOP</entry>
+	<entry key="remote_ext_stopwords">http://host.docker.internal:8777/search/dict/ik/STOP</entry>
 </properties>
