@@ -1,0 +1,7 @@
+services:
+  dejavu:
+    image: appbaseio/dejavu
+    container_name: dejavu
+    restart: unless-stopped
+    ports:
+      - 1358:1358
