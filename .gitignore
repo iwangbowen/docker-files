@@ -1,2 +1,5 @@
 elasticsearch-ik-cms/data
 elasticsearch-ik-cms/logs
+
+xxl-job-admin-cms/mysql/data
+xxl-job-admin-cms/xxl-job/logs
