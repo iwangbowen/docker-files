@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: admin@123
+    ports:
+      - 1433:1433
+    volumes:
+      - data:/var/opt/mssql/data
+
+volumes:
+  data:
