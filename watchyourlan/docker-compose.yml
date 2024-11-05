@@ -1,0 +1,16 @@
+# 参考[官方配置](https://github.com/aceberg/WatchYourLAN/blob/main/docker-compose.yml)，暂未解决Windows下通过WSL的访问问题。
+
+version: '3.8'
+services:
+  watchyourlan:
+    image: aceberg/watchyourlan
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+      IFACES: eth0
+    volumes:
+      - data:/data/WatchYourLAN
+
+volumes:
+  data:
