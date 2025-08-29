@@ -14,3 +14,5 @@ services:
       # - KK_CONTEXT_PATH=/preview
       - KK_OFFICE_PREVIEW_TYPE=pdf
       - KK_OFFICE_PREVIEW_SWITCH_DISABLED=true
+    volumes:
+      - ./application.properties:/opt/kkFileView-4.4.0/config/application.properties:ro
