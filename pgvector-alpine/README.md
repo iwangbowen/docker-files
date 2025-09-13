@@ -85,6 +85,54 @@ docker run -d \
   mypgvector:pg17.6-alpine
 ```
 
+## 手动启用pgvector扩展
+
+如果无法直接通过外部客户端连接到数据库（例如网络限制或工具问题），可以进入容器内部手动启用pgvector扩展。
+
+1. **进入容器**：
+
+   ```bash
+   docker exec -it pgvector-postgres bash
+   ```
+
+2. **连接到PostgreSQL数据库**：
+
+   ```bash
+   psql -U postgres -d vector_db
+   ```
+
+   - 如果提示输入密码，请使用你在 `docker-compose.yml` 或 `docker run` 中设置的密码。
+
+3. **启用pgvector扩展**：
+
+   ```sql
+   CREATE EXTENSION vector;
+   ```
+
+4. **验证扩展**：
+
+   ```sql
+   \dx
+   ```
+
+   - 应该看到 `vector` 扩展已启用。
+
+5. **退出数据库和容器**：
+
+   ```sql
+   \q
+   ```
+
+   ```bash
+   exit
+   ```
+
+### 注意事项
+
+- 容器名称 `pgvector-postgres` 应与你的 `docker-compose.yml` 或 `docker run --name` 中设置的名称匹配。
+- 如果使用不同的数据库名称，请相应调整 `-d` 参数。
+- 此方法适用于调试或初始设置，生产环境建议使用外部连接。
+
 ## 推送到容器仓库
 
 ### 推送到 Docker Hub
