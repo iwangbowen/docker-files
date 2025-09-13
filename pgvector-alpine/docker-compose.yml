@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: wangbowen/mypgvector:pg17.6-alpine
+    container_name: pgvector
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: vector_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres # 请替换为你的密码
+    volumes:
+      - pgvector_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgvector_data:
