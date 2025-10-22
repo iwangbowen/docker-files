@@ -10,6 +10,7 @@ services:
       POSTGRES_DB: vector_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres # 请替换为你的密码
+      TZ: Asia/Shanghai    # ✅ 设置容器时区为中国标准时间
     volumes:
       - pgvector_data:/var/lib/postgresql/data
     restart: unless-stopped
