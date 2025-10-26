@@ -1,0 +1,8 @@
+version: '3.7'
+services:
+  kkfileview:
+    image: wangbowen/html2pdf-service:v1.0.1
+    container_name: html2pdf-service
+    restart: unless-stopped
+    ports:
+      - 3200:3200
