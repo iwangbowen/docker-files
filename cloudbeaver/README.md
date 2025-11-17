@@ -114,6 +114,39 @@ location /cloudbeaver {
 - 子路径必须以 `/` 开头，如 `/cloudbeaver`
 - `serviceURI` 默认为 `/api/`，会自动附加到 `rootURI` 后面
 
+### 常见错误：WebSocket 连接失败
+
+如果浏览器控制台提示 `WebSocket connection error`，检查以下配置：
+
+**错误配置示例**：
+
+```nginx
+# ❌ 错误：路径重复
+location /cloudbeaver/ {
+    proxy_pass http://localhost:8978/cloudbeaver/;
+}
+```
+
+**正确配置**：
+
+```nginx
+# ✅ 正确：不要在 proxy_pass 中重复路径
+location /cloudbeaver {
+    proxy_pass http://localhost:8978;
+    proxy_http_version 1.1;  # 必需
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    # ... 其他配置
+}
+```
+
+**关键点**：
+
+1. `proxy_http_version 1.1;` 是必需的
+2. `proxy_pass` 不要带子路径，因为 CloudBeaver 已配置 `CLOUDBEAVER_ROOT_URI`
+3. 必须设置超时时间（`proxy_read_timeout 3600s;` 等）
+4. 修改后重启 Nginx：`nginx -s reload`
+
 ## 端口映射
 
 | 宿主机端口 | 容器端口 | 说明 |

@@ -1,15 +1,38 @@
 # Nginx 反向代理配置示例 - CloudBeaver 子路径部署
 # 将此配置添加到你的 Nginx 配置文件中
 
-# 子路径部署示例：访问 https://yourdomain.com/cloudbeaver
+# ============================================
+# 重要提示：常见错误配置
+# ============================================
+# ❌ 错误配置 1：路径重复
+# location /cloudbeaver/ {
+#     proxy_pass http://localhost:8978/cloudbeaver/;  # 路径会重复！
+# }
+#
+# ❌ 错误配置 2：缺少 HTTP 版本
+# location /cloudbeaver {
+#     proxy_pass http://localhost:8978;
+#     # 缺少 proxy_http_version 1.1，WebSocket 无法工作
+# }
+#
+# ❌ 错误配置 3：缺少超时设置
+# location /cloudbeaver {
+#     proxy_pass http://localhost:8978;
+#     proxy_http_version 1.1;
+#     # 缺少超时设置，WebSocket 会断开
+# }
+
+# ============================================
+# ✅ 正确配置：简单版（推荐）
+# ============================================
 location /cloudbeaver {
-    # 反向代理到 CloudBeaver 容器
+    # 注意：proxy_pass 不要带路径，CloudBeaver 已配置 CLOUDBEAVER_ROOT_URI=/cloudbeaver
     proxy_pass http://localhost:8978;
 
-    # HTTP 协议版本
+    # HTTP 1.1 是 WebSocket 必需的
     proxy_http_version 1.1;
 
-    # WebSocket 支持（必需）
+    # WebSocket 支持（关键配置！）
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
 
@@ -20,73 +43,101 @@ location /cloudbeaver {
     proxy_set_header X-Forwarded-Proto $scheme;
 
     # 超时设置（WebSocket 长连接需要）
+    proxy_connect_timeout 3600s;
     proxy_read_timeout 3600s;
     proxy_send_timeout 3600s;
 
-    # 缓冲设置
+    # 禁用缓冲
     proxy_buffering off;
+    proxy_request_buffering off;
 }
 
 # ============================================
-# 完整的 Nginx 配置文件示例（HTTPS + 子路径）
+# 路径传递说明
+# ============================================
+# 当用户访问：https://yourdomain.com/cloudbeaver/api/ws
+#
+# 正确配置（proxy_pass http://localhost:8978）：
+#   → Nginx 转发：http://localhost:8978/cloudbeaver/api/ws
+#   → CloudBeaver 接收：/cloudbeaver/api/ws ✅
+#
+# 错误配置（proxy_pass http://localhost:8978/cloudbeaver/）：
+#   → Nginx 转发：http://localhost:8978/cloudbeaver/api/ws
+#   → 实际路径变成：/cloudbeaver/cloudbeaver/api/ws ❌
+
+# ============================================
+# 方案二：完整的 Nginx 配置文件示例（HTTPS + 子路径 + WebSocket）
 # ============================================
 
-# upstream cloudbeaver_backend {
-#     server localhost:8978;
-#     keepalive 32;
-# }
+http {
+    # WebSocket 支持映射（在 http 块中定义）
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        '' close;
+    }
 
-# server {
-#     listen 80;
-#     server_name yourdomain.com;
-#
-#     # 强制跳转到 HTTPS
-#     return 301 https://$server_name$request_uri;
-# }
+    # 上游服务器配置
+    upstream cloudbeaver_backend {
+        server localhost:8978;
+        keepalive 32;
+    }
 
-# server {
-#     listen 443 ssl http2;
-#     server_name yourdomain.com;
-#
-#     # SSL 证书配置
-#     ssl_certificate /path/to/your/certificate.crt;
-#     ssl_certificate_key /path/to/your/private.key;
-#     ssl_protocols TLSv1.2 TLSv1.3;
-#     ssl_ciphers HIGH:!aNULL:!MD5;
-#
-#     # 客户端最大上传大小
-#     client_max_body_size 100M;
-#
-#     # CloudBeaver 子路径
-#     location /cloudbeaver {
-#         proxy_pass http://cloudbeaver_backend;
-#         proxy_http_version 1.1;
-#
-#         # WebSocket 支持
-#         proxy_set_header Upgrade $http_upgrade;
-#         proxy_set_header Connection "upgrade";
-#
-#         # 请求头
-#         proxy_set_header Host $host;
-#         proxy_set_header X-Real-IP $remote_addr;
-#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-#         proxy_set_header X-Forwarded-Proto $scheme;
-#
-#         # 超时设置
-#         proxy_connect_timeout 600s;
-#         proxy_read_timeout 3600s;
-#         proxy_send_timeout 3600s;
-#
-#         # 缓冲设置
-#         proxy_buffering off;
-#         proxy_request_buffering off;
-#     }
-#
-#     # 其他服务配置...
-#     # location /other-app {
-#     #     ...
-#     # }
-# }
+    # HTTP 重定向到 HTTPS
+    server {
+        listen 80;
+        server_name yourdomain.com;
+        return 301 https://$server_name$request_uri;
+    }
+
+    # HTTPS 配置
+    server {
+        listen 443 ssl http2;
+        server_name yourdomain.com;
+
+        # SSL 证书配置
+        ssl_certificate /path/to/your/certificate.crt;
+        ssl_certificate_key /path/to/your/private.key;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        # 客户端最大上传大小
+        client_max_body_size 100M;
+
+        # CloudBeaver 子路径配置
+        location /cloudbeaver {
+            proxy_pass http://cloudbeaver_backend;
+            proxy_http_version 1.1;
+
+            # WebSocket 支持（使用映射变量）
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+
+            # 传递原始请求头
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Host $host;
+
+            # 超时设置（WebSocket 长连接）
+            proxy_connect_timeout 3600s;
+            proxy_read_timeout 3600s;
+            proxy_send_timeout 3600s;
+
+            # 禁用缓冲
+            proxy_buffering off;
+            proxy_request_buffering off;
+
+            # 错误日志（调试用）
+            # error_log /var/log/nginx/cloudbeaver_error.log debug;
+        }
+
+        # 其他服务配置...
+        # location /other-app {
+        #     ...
+        # }
+    }
+}
 
 # ============================================
 # Docker Compose 网络配置示例
