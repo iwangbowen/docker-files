@@ -16,53 +16,67 @@ docker compose up -d
 
 ## 子路径部署（重要）
 
-如果你需要通过子路径访问 CloudBeaver（如 `https://yourdomain.com/cloudbeaver`），需要按以下步骤配置：
+如果你需要通过子路径访问 CloudBeaver（如 `https://yourdomain.com/cloudbeaver`），CloudBeaver 支持通过环境变量配置子路径。
 
-### 步骤 1：首次启动（初始化）
+### 方法一：使用环境变量（推荐）
 
-首次启动时，让 CloudBeaver 自动初始化配置：
+这是最简单的方法，只需修改 [docker-compose.yml](docker-compose.yml)：
+
+**取消注释环境变量**：
+
+```yaml
+environment:
+  - TZ=Asia/Shanghai
+  - CLOUDBEAVER_ROOT_URI=/cloudbeaver  # 取消注释这一行
+```
+
+**重启服务**：
+
+```bash
+docker compose down
+docker compose up -d
+```
+
+**配置 Nginx 反向代理**（见下方）并访问测试：`https://yourdomain.com/cloudbeaver`
+
+### 方法二：手动修改配置文件（高级）
+
+如果环境变量方法不生效，可以手动修改配置文件：
+
+#### 步骤 1：首次启动并初始化
 
 ```bash
 cd cloudbeaver/
 docker compose up -d
 ```
 
-等待 1-2 分钟，访问 http://localhost:8978 确认服务已启动，完成管理员账户创建。
+等待 1-2 分钟，访问 http://localhost:8978 完成管理员账户创建。
 
-### 步骤 2：修改运行时配置
-
-进入容器修改运行时配置文件：
+#### 步骤 2：修改运行时配置
 
 ```bash
 # 进入容器
 docker exec -it cloudbeaver sh
 
-# 使用 vi 编辑器修改配置文件
+# 编辑配置文件
 vi /opt/cloudbeaver/workspace/.data/.cloudbeaver.runtime.conf
 ```
 
-在 `"server"` 部分添加或修改以下配置（注意保持 JSON 格式正确）：
+在 `"server"` 部分添加：
 
 ```json
 {
   "server": {
-    "serverURL": "https://yourdomain.com/cloudbeaver",
     "rootURI": "/cloudbeaver",
-    "serviceURI": "/cloudbeaver/api/",
-    ... 其他现有配置保持不变 ...
+    "serviceURI": "/api/",
+    ... 其他配置保持不变 ...
   }
 }
 ```
 
-**关键参数说明**：
+保存后退出（`:wq`），然后重启：`docker compose restart`
 
-- `serverURL`: 完整的服务器访问地址
-- `rootURI`: Web 应用的 URI 前缀（子路径）
-- `serviceURI`: API 服务的 URI 前缀（必须相对于 rootURI）
-
-保存后退出容器（`:wq` 保存退出 vi）。
-
-### 步骤 3：配置 Nginx 反向代理
+### Nginx 反向代理配置
 
 参考 [nginx.conf.example](nginx.conf.example) 配置你的 Nginx：
 
@@ -88,23 +102,13 @@ location /cloudbeaver {
 }
 ```
 
-### 步骤 4：重启服务
-
-```bash
-docker compose restart
-```
-
-### 步骤 5：访问测试
-
-访问 `https://yourdomain.com/cloudbeaver` 验证配置是否生效。
-
 **注意事项**：
 
+- **推荐使用方法一**（环境变量），更简单且不容易出错
 - WebSocket 支持是必需的，否则实时功能会失效
-- 修改 `rootURI` 后必须重启容器才能生效
+- 修改配置后必须重启容器才能生效
 - 子路径必须以 `/` 开头，如 `/cloudbeaver`
-- `serviceURI` 必须包含 `rootURI` 前缀
-- 配置文件路径：`/opt/cloudbeaver/workspace/.data/.cloudbeaver.runtime.conf`（运行时配置，优先级最高）
+- `serviceURI` 默认为 `/api/`，会自动附加到 `rootURI` 后面
 
 ## 端口映射
 

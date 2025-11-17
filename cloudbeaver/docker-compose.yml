@@ -14,6 +14,9 @@ services:
       # - ./cloudbeaver.conf:/opt/cloudbeaver/conf/cloudbeaver.conf:ro
     environment:
       - TZ=Asia/Shanghai
+      # 子路径配置（如果需要通过 /cloudbeaver 访问）
+      # 取消注释并修改为你的子路径
+      - CLOUDBEAVER_ROOT_URI=/cloudbeaver
 
 volumes:
   cloudbeaver_workspace:
