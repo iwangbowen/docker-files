@@ -9,7 +9,9 @@ services:
       - "8978:8978"
     volumes:
       - cloudbeaver_workspace:/opt/cloudbeaver/workspace
-      - ./cloudbeaver.conf:/opt/cloudbeaver/conf/cloudbeaver.conf:ro
+      # 注意：首次启动时不要挂载配置文件，让 CloudBeaver 自动初始化
+      # 初始化完成后，如需子路径部署，参考 README.md 修改运行时配置
+      # - ./cloudbeaver.conf:/opt/cloudbeaver/conf/cloudbeaver.conf:ro
     environment:
       - TZ=Asia/Shanghai
 
