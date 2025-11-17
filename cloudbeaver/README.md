@@ -14,6 +14,73 @@ docker compose up -d
 - **Web 界面**: http://localhost:8978
 - **首次访问**: 需要创建管理员账户
 
+## 子路径部署（重要）
+
+如果你需要通过子路径访问 CloudBeaver（如 `https://yourdomain.com/cloudbeaver`），需要进行以下配置：
+
+### 1. 修改 cloudbeaver.conf
+
+编辑 [cloudbeaver.conf](cloudbeaver.conf) 文件，修改以下配置项：
+
+```json
+{
+  "server": {
+    "serverURL": "https://yourdomain.com/cloudbeaver",
+    "rootURI": "/cloudbeaver",
+    "serviceURI": "/cloudbeaver/api/"
+  }
+}
+```
+
+**关键参数说明**：
+
+- `serverURL`: 完整的服务器访问地址
+- `rootURI`: Web 应用的 URI 前缀（子路径）
+- `serviceURI`: API 服务的 URI 前缀（必须相对于 rootURI）
+
+### 2. 配置 Nginx 反向代理
+
+参考 [nginx.conf.example](nginx.conf.example) 配置你的 Nginx：
+
+```nginx
+location /cloudbeaver {
+    proxy_pass http://localhost:8978;
+    proxy_http_version 1.1;
+
+    # WebSocket 支持（必需）
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+
+    # 传递原始请求头
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # 超时设置（WebSocket 长连接需要）
+    proxy_read_timeout 3600s;
+    proxy_send_timeout 3600s;
+    proxy_buffering off;
+}
+```
+
+### 3. 重启服务
+
+```bash
+docker compose restart
+```
+
+### 4. 访问测试
+
+访问 `https://yourdomain.com/cloudbeaver` 验证配置是否生效。
+
+**注意事项**：
+
+- WebSocket 支持是必需的，否则实时功能会失效
+- 修改 `rootURI` 后需要重启容器才能生效
+- 子路径必须以 `/` 开头，如 `/cloudbeaver`
+- `serviceURI` 必须包含 `rootURI` 前缀
+
 ## 端口映射
 
 | 宿主机端口 | 容器端口 | 说明 |

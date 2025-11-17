@@ -1,0 +1,110 @@
+# Nginx 反向代理配置示例 - CloudBeaver 子路径部署
+# 将此配置添加到你的 Nginx 配置文件中
+
+# 子路径部署示例：访问 https://yourdomain.com/cloudbeaver
+location /cloudbeaver {
+    # 反向代理到 CloudBeaver 容器
+    proxy_pass http://localhost:8978;
+
+    # HTTP 协议版本
+    proxy_http_version 1.1;
+
+    # WebSocket 支持（必需）
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+
+    # 传递原始请求头
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # 超时设置（WebSocket 长连接需要）
+    proxy_read_timeout 3600s;
+    proxy_send_timeout 3600s;
+
+    # 缓冲设置
+    proxy_buffering off;
+}
+
+# ============================================
+# 完整的 Nginx 配置文件示例（HTTPS + 子路径）
+# ============================================
+
+# upstream cloudbeaver_backend {
+#     server localhost:8978;
+#     keepalive 32;
+# }
+
+# server {
+#     listen 80;
+#     server_name yourdomain.com;
+#
+#     # 强制跳转到 HTTPS
+#     return 301 https://$server_name$request_uri;
+# }
+
+# server {
+#     listen 443 ssl http2;
+#     server_name yourdomain.com;
+#
+#     # SSL 证书配置
+#     ssl_certificate /path/to/your/certificate.crt;
+#     ssl_certificate_key /path/to/your/private.key;
+#     ssl_protocols TLSv1.2 TLSv1.3;
+#     ssl_ciphers HIGH:!aNULL:!MD5;
+#
+#     # 客户端最大上传大小
+#     client_max_body_size 100M;
+#
+#     # CloudBeaver 子路径
+#     location /cloudbeaver {
+#         proxy_pass http://cloudbeaver_backend;
+#         proxy_http_version 1.1;
+#
+#         # WebSocket 支持
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection "upgrade";
+#
+#         # 请求头
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#
+#         # 超时设置
+#         proxy_connect_timeout 600s;
+#         proxy_read_timeout 3600s;
+#         proxy_send_timeout 3600s;
+#
+#         # 缓冲设置
+#         proxy_buffering off;
+#         proxy_request_buffering off;
+#     }
+#
+#     # 其他服务配置...
+#     # location /other-app {
+#     #     ...
+#     # }
+# }
+
+# ============================================
+# Docker Compose 网络配置示例
+# ============================================
+# 如果 Nginx 也运行在 Docker 中，使用 Docker 网络通信：
+# 在 nginx location 配置中：
+#   proxy_pass http://cloudbeaver:8978;
+#
+# 并在 docker-compose.yml 中配置同一网络：
+# services:
+#   nginx:
+#     ...
+#     networks:
+#       - web
+#   cloudbeaver:
+#     ...
+#     networks:
+#       - web
+# networks:
+#   web:
+#     external: true

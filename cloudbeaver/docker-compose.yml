@@ -9,6 +9,7 @@ services:
       - "8978:8978"
     volumes:
       - cloudbeaver_workspace:/opt/cloudbeaver/workspace
+      - ./cloudbeaver.conf:/opt/cloudbeaver/conf/cloudbeaver.conf:ro
     environment:
       - TZ=Asia/Shanghai
 
