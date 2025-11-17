@@ -2,6 +2,10 @@
 
 CloudBeaver 是一个基于 Web 的数据库管理工具，支持多种数据库（PostgreSQL、MySQL、MariaDB、SQL Server、Oracle、DB2、Firebird、SQLite、H2 等）。
 
+## 访问地址
+
+https://file.zgyshj.com.cn/cloudbeaver/ cbadmin/Cloudbeaver123456
+
 ## 快速启动
 
 ```bash
