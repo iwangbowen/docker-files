@@ -1,0 +1,9 @@
+services:
+  jrebel-license-active-server:
+    image: yuxiaoyao520/jrebel-license-active-server:latest
+    container_name: jrebel-license-active-server
+    ports:
+      - "12345:12345"
+    restart: unless-stopped
+    # 如需自定义端口或域名，取消注释以下配置（同步修改 ports）：
+    # command: ./jrebel-license-active-server --port=12345 --exportSchema=http --exportHost=jrebel.domain.com
