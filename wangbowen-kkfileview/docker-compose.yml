@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   kkfileview:
-    image: wangbowen/kkfileview:4.4.3
+    image: wangbowen/kkfileview:4.4.4
     container_name: kkfileview
     restart: unless-stopped
     ports:
