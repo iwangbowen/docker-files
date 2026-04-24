@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   kkfileview:
-    image: wangbowen/kkfileview:4.4.5
+    image: wangbowen/kkfileview:5.0.0
     container_name: kkfileview
     restart: unless-stopped
     ports:
@@ -16,5 +16,6 @@ services:
       - KK_OFFICE_PREVIEW_SWITCH_DISABLED=true
       - KK_OFFICE_HOME=/opt/libreoffice25.8
       - KK_TRUST_HOST=*
+      - FILE_UPLOAD_DISABLED=false
     volumes:
-      - ./application.properties:/opt/kkFileView-4.4.0/config/application.properties:ro
+      - ./application.properties:/opt/kkFileView-5.0.0/config/application.properties:ro
