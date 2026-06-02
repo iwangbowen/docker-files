@@ -1,0 +1,30 @@
+services:
+  gotenberg:
+    image: gotenberg/gotenberg:latest
+    container_name: gotenberg
+    restart: unless-stopped
+    ports:
+      - "3434:3000"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - gotenberg_data:/var/task/data
+      - gotenberg_logs:/var/task/logs
+
+volumes:
+  gotenberg_data:
+    name: gotenberg_data
+  gotenberg_logs:
+    name: gotenberg_logs
+
+# Gotenberg 是一个将 Word、Excel、PPT 等文档转换为 PDF 的 API 服务
+# 默认端口: 3434 (映射到容器内部 3000)
+# API 端点:
+#   POST /forms/libreoffice/convert  - 通过表单提交转换
+#   POST /api/process                 - 通过API处理
+#
+# 使用示例:
+# curl -X POST http://localhost:3434/forms/libreoffice/convert \
+#   -F "file=@/path/to/your/document.doc"
+#
+# 返回的 PDF 可以直接保存或下载
